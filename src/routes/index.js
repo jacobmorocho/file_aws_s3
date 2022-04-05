@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const documentController = require('../controller/aws');
+const AwsController = require('../controller/aws');
 
-router.get("/list", documentController.list);
-router.post("/add", documentController.add);
-router.delete("/delete", documentController.delete);
+router.post("/clone", AwsController.clone);
+router.post("/add", AwsController.add);
+router.delete("/delete", AwsController.delete);
 
 module.exports = router;
