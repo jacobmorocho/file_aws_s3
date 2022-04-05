@@ -153,7 +153,11 @@ const AwsController = () => {
             }
         })
     }
+    const home=(req, res)=>{
+        res.json({app:"aws s3"})
+    }
     return {
+        home:home,
         clone: clone,
         add: add,
         delete: deleted
