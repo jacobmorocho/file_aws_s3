@@ -1,5 +1,6 @@
 # Build and Release Folders
 bin-debug/
+node_modules/
 mngr2016SASH
 bin-release/
 [Oo]bj/
