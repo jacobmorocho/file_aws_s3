@@ -4,7 +4,6 @@ const { exec } = require("child_process");
 const jsv = require('json-validator');
 const AWS = require('aws-sdk');
 const { listAllObjects } = require('s3-list-all-the-objects');
-console.log(listAllObjects);
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
@@ -22,13 +21,7 @@ const ValidateClone = (body, callback) => {
             trim: true,
             type: "string",
             isLength: [3, 50]
-        },
-        domaindist: {
-            required: true,
-            trim: true,
-            type: "string",
-            isLength: [3, 50]
-        }
+        }       
     }
     jsv.validate(body, schema, callback);
 }
@@ -39,12 +32,6 @@ const Validate = (body, callback) => {
             trim: true,
             type: "string",
             isLength: [5, 50]
-        },
-        domain: {
-            required: true,
-            trim: true,
-            type: "string",
-            isLength: [3, 50]
         },
         key: {
             required: true,
@@ -90,7 +77,7 @@ const AwsController = () => {
             } else {
                 IsBucket(req.body.backet).then((r) => {
                     if (r) {
-                        let command = `aws s3 cp s3://${req.body.backet}/${req.body.domainorg}/ s3://${req.body.backet}/${req.body.domaindist} --recursive `;
+                        let command = `aws s3 cp s3://${req.body.backet}/${req.body.domainorg}/ s3://${req.body.backet}/${req.user.obj[0].dominio_asignado} --recursive `;
                         commandCli(command);
                         res.json({ status: true, messages: "En ejecucion" });
                     }
@@ -114,7 +101,7 @@ const AwsController = () => {
             } else {
                 IsBucket(req.body.backet).then((r) => {
                     if (r) {
-                        let key = pathKey([req.body.domain, req.body.key, req.files.file.name]);
+                        let key = pathKey([req.user.obj[0].dominio_asignado, req.body.key, req.files.file.name]);
                         const params = {
                             Bucket: req.body.backet,
                             Key: key,
@@ -137,13 +124,14 @@ const AwsController = () => {
         })
     }
     const deleted = async (req, res) => {
+
         Validate(req.body, (err, messages) => {
             if (messages && Object.keys(messages).length !== 0) {
                 res.json(messages);
             } else {
                 IsBucket(req.body.backet).then((r) => {
                     if (r) {
-                        let key = pathKey([req.body.domain, req.body.key]);
+                        let key = pathKey([req.user.obj[0].dominio_asignado, req.body.key]);
                         let command = `aws s3 rm s3://${req.body.backet}/${key} --recursive`;
                         console.log(command);
                         commandCli(command);
@@ -159,13 +147,14 @@ const AwsController = () => {
         })
     }
     const list = (req, res) => {
+        
         Validate(req.body, (err, messages) => {
             if (messages && Object.keys(messages).length !== 0) {
                 res.json(messages);
             } else {
                 IsBucket(req.body.backet).then((r) => {
                     if (r) {
-                        let key = pathKey([req.body.domain, req.body.key]);
+                        let key = pathKey([req.user.obj[0].dominio_asignado, req.body.key]);
                         listAllObjects(req.body.backet, key).then((myObjects) => {
                             res.json(myObjects);
                         }).catch((error) => {
