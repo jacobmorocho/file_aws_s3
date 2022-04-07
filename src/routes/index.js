@@ -5,5 +5,5 @@ router.get("/", AwsController.home);
 router.post("/clone", AwsController.clone);
 router.post("/add", AwsController.add);
 router.delete("/delete", AwsController.delete);
-
+router.get("/list", AwsController.list);
 module.exports = router;

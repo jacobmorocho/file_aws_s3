@@ -1,6 +1,10 @@
+
+'use strict'
 const { exec } = require("child_process");
-var jsv = require('json-validator');
+const jsv = require('json-validator');
 const AWS = require('aws-sdk');
+const { listAllObjects } = require('s3-list-all-the-objects');
+console.log(listAllObjects);
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
@@ -141,6 +145,7 @@ const AwsController = () => {
                     if (r) {
                         let key = pathKey([req.body.domain, req.body.key]);
                         let command = `aws s3 rm s3://${req.body.backet}/${key} --recursive`;
+                        console.log(command);
                         commandCli(command);
                         res.json({ status: true, message: "En ejecucion" });
                     } else {
@@ -153,14 +158,39 @@ const AwsController = () => {
             }
         })
     }
-    const home=(req, res)=>{
-        res.json({app:"aws s3"})
+    const list = (req, res) => {
+        Validate(req.body, (err, messages) => {
+            if (messages && Object.keys(messages).length !== 0) {
+                res.json(messages);
+            } else {
+                IsBucket(req.body.backet).then((r) => {
+                    if (r) {
+                        let key = pathKey([req.body.domain, req.body.key]);
+                        listAllObjects(req.body.backet, key).then((myObjects) => {
+                            res.json(myObjects);
+                        }).catch((error) => {
+                            res.json(error);
+                        });
+
+                    } else {
+                        res.json({ status: false, message: "No Existe backet" });
+                    }
+                }).catch((err) => {
+                    res.json(err);
+                })
+            }
+        })
+    }
+    const home = (req, res) => {
+        res.json({ app: "aws s3" })
     }
     return {
-        home:home,
+        home: home,
         clone: clone,
         add: add,
-        delete: deleted
+        delete: deleted,
+        list: list
     }
 }
+
 module.exports = AwsController();
